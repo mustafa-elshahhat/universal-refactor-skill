@@ -53,7 +53,7 @@ npx universal-refactor-skill@latest install
 From GitHub:
 
 ```bash
-npx github:mustafa-elshahhat/universal-refactor-skill install
+npx --yes --package github:mustafa-elshahhat/universal-refactor-skill universal-refactor-skill install
 ```
 
 Run it from the root of the project you want to add the skill to.

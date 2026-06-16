@@ -9,8 +9,8 @@ pure Node.js (no dependencies) and runs the same on Windows, macOS, and Linux.
 # via npm
 npx universal-refactor-skill@latest <command> [options]
 
-# via GitHub
-npx github:mustafa-elshahhat/universal-refactor-skill <command> [options]
+# via GitHub (canonical: --package selects the repo, then the binary name)
+npx --yes --package github:mustafa-elshahhat/universal-refactor-skill universal-refactor-skill <command> [options]
 
 # from a clone
 node bin/cli.js <command> [options]
