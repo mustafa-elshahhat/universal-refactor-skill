@@ -13,7 +13,7 @@ npx universal-refactor-skill@latest <command> [options]
 npx github:mustafa-elshahhat/universal-refactor-skill <command> [options]
 
 # from a clone
-node bin/universal-refactor-skill.js <command> [options]
+node bin/cli.js <command> [options]
 ```
 
 If installed globally (`npm i -g universal-refactor-skill`), the command

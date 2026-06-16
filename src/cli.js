@@ -19,6 +19,7 @@ const OPTIONS = {
   'no-copilot': { type: 'boolean', default: false },
   'no-generic': { type: 'boolean', default: false },
   'keep-reports': { type: 'boolean', default: false },
+  verbose: { type: 'boolean', default: false },
   help: { type: 'boolean', short: 'h', default: false },
   version: { type: 'boolean', short: 'v', default: false },
 };
@@ -32,93 +33,74 @@ function getVersion() {
   }
 }
 
-const HELP = `universal-refactor-skill — agent-agnostic project refactor skill pack
+const HELP = `Universal Refactor Skill
 
-USAGE
-  universal-refactor-skill <command> [options]
+Usage:
+  universal-refactor-skill install [options]
 
-COMMANDS
-  install      Install the refactor skill pack into a project (default: cwd).
-  uninstall    Remove files this package installed from a project.
-  doctor       Report installation status for a project.
-  help         Show this help.
+Options:
+  --update-gitignore
+  --commit
+  --force
+  --verbose
+  -h, --help`;
 
-INSTALL OPTIONS
-  --target <path>      Install into a specific project path (default: cwd).
-  --force              Overwrite existing installed files.
-  --update-gitignore   Write ignore rules into .gitignore instead of only
-                       .git/info/exclude.
-  --commit             Install files intended to be committed to the repo.
-                       (Skill files are NOT ignored; only .refactor/ is.)
-  --no-claude          Skip the Claude Code adapter.
-  --no-opencode        Skip the OpenCode adapter.
-  --no-copilot         Skip the GitHub Copilot adapter.
-  --no-generic         Skip the generic AGENTS.md-style adapter.
-
-UNINSTALL OPTIONS
-  --target <path>      Uninstall from a specific project path (default: cwd).
-  --keep-reports       Keep the .refactor/ reports directory.
-
-GLOBAL OPTIONS
-  -h, --help           Show this help.
-  -v, --version        Print the version.
-
-EXAMPLES
-  # Default: local-only install, ignored via .git/info/exclude
-  npx universal-refactor-skill install
-
-  # Local install, ignore rules written into .gitignore
-  npx universal-refactor-skill install --update-gitignore
-
-  # Team mode: install files intended to be committed
-  npx universal-refactor-skill install --commit
-
-  # Overwrite a previous install
-  npx universal-refactor-skill install --force
-
-This package does not refactor your code by itself. It installs a strict,
-reusable refactor skill pack that coding agents can follow inside your project.`;
-
-const USAGE_FOOTER = `Usage:
-Claude Code:
-  claude "Use the universal refactor skill installed in this repository. Run the audit first, create a refactor plan, then implement safe evidence-based refactors phase by phase."
-OpenCode:
-  /refactor
-Generic:
-  Read .agent/universal-refactor/core/SKILL.md and follow the workflow.`;
+// Canonical install root reported to users. The installer writes several
+// adapter files too, but this directory is the single source of truth users
+// care about; --verbose expands the full file list.
+const SKILL_HOME = '.agent/universal-refactor/';
 
 function bullet(list, indent = '- ') {
   return list.map((item) => `${indent}${item}`).join('\n');
 }
 
-function formatInstall(res) {
+/**
+ * Render the install result for the terminal.
+ *
+ * Produces the stable, documented success output. With `verbose` the full
+ * per-file breakdown and ignore entries are shown; otherwise a concise summary.
+ *
+ * @param {object} res Structured result from install().
+ * @param {object} [opts]
+ * @param {boolean} [opts.verbose] Show the full file list and ignore entries.
+ */
+function formatInstall(res, opts = {}) {
+  const verbose = !!opts.verbose;
   const out = [];
-  out.push('Universal Refactor Skill installed.');
-  out.push('');
-  out.push(`Mode: ${res.modeLabel}`);
-  out.push(`Target: ${res.target}`);
+
+  out.push(res.committed
+    ? 'Universal Refactor Skill installed.'
+    : 'Universal Refactor Skill installed locally.');
   out.push('');
 
-  if (res.created.length) {
-    out.push('Created:');
-    out.push(bullet(res.created));
+  if (verbose) {
+    out.push(`Mode: ${res.modeLabel}`);
+    out.push(`Target: ${res.target}`);
     out.push('');
   }
-  if (res.overwritten.length) {
-    out.push('Overwritten:');
-    out.push(bullet(res.overwritten));
-    out.push('');
+
+  const touched = res.created.length + res.overwritten.length;
+  out.push('Installed:');
+  if (verbose && touched) {
+    if (res.created.length) out.push(bullet(res.created));
+    if (res.overwritten.length) out.push(bullet(res.overwritten));
+  } else if (touched) {
+    out.push(`- ${SKILL_HOME}`);
+  } else {
+    out.push('- (nothing new — all files already present)');
   }
-  if (res.skipped.length) {
+  out.push('');
+
+  if (verbose && res.skipped.length) {
     out.push('Skipped (already present — use --force to overwrite):');
     out.push(bullet(res.skipped));
     out.push('');
   }
 
   if (res.ignoredVia) {
-    out.push('Ignored through:');
+    out.push(res.committed ? 'Ignored through:' : 'Ignored locally through:');
     out.push(`- ${res.ignoredVia}`);
-    out.push(bullet(res.ignoreEntries, '    '));
+    if (verbose) out.push(bullet(res.ignoreEntries, '    '));
     out.push('');
   }
 
@@ -128,12 +110,9 @@ function formatInstall(res) {
   } else {
     out.push('No tracked project files were modified.');
   }
-  out.push('');
 
-  for (const w of res.warnings) out.push(`! ${w}`);
-  if (res.warnings.length) out.push('');
+  for (const w of res.warnings) out.push(`\n! ${w}`);
 
-  out.push(USAGE_FOOTER);
   return out.join('\n');
 }
 
@@ -241,7 +220,7 @@ export async function main(argv = process.argv.slice(2)) {
         commit: values.commit,
         adapters: adaptersFrom(values),
       });
-      console.log(formatInstall(result));
+      console.log(formatInstall(result, { verbose: values.verbose }));
       return 0;
     }
     case 'uninstall': {

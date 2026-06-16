@@ -198,7 +198,7 @@ user files.
 ```bash
 npm test       # node --test (installer tests)
 npm run lint   # node --check on all source files
-node bin/universal-refactor-skill.js help
+node bin/cli.js --help
 ```
 
 No runtime dependencies — pure Node.js standard library, cross-platform

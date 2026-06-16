@@ -4,7 +4,7 @@
   "description": "Agent-agnostic universal project refactor skill pack with safe local installation.",
   "type": "module",
   "bin": {
-    "universal-refactor-skill": "bin/universal-refactor-skill.js"
+    "universal-refactor-skill": "./bin/cli.js"
   },
   "files": [
     "bin/",
@@ -16,9 +16,9 @@
   ],
   "scripts": {
     "test": "node --test",
-    "lint": "node --check bin/universal-refactor-skill.js && node --check src/cli.js && node --check src/install.js && node --check src/uninstall.js && node --check src/doctor.js && node --check src/paths.js && node --check src/file-utils.js && node --check src/templates.js",
-    "doctor": "node bin/universal-refactor-skill.js doctor",
-    "help": "node bin/universal-refactor-skill.js help"
+    "lint": "node --check bin/cli.js && node --check src/cli.js && node --check src/install.js && node --check src/uninstall.js && node --check src/doctor.js && node --check src/paths.js && node --check src/file-utils.js && node --check src/templates.js",
+    "doctor": "node bin/cli.js doctor",
+    "help": "node bin/cli.js --help"
   },
   "keywords": [
     "refactor",
