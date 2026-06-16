@@ -1,0 +1,51 @@
+{
+  "name": "universal-refactor-skill",
+  "version": "0.1.0",
+  "description": "Agent-agnostic universal project refactor skill pack with safe local installation.",
+  "type": "module",
+  "bin": {
+    "universal-refactor-skill": "bin/universal-refactor-skill.js"
+  },
+  "files": [
+    "bin/",
+    "src/",
+    "templates/",
+    "docs/",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "test": "node --test",
+    "lint": "node --check bin/universal-refactor-skill.js && node --check src/cli.js && node --check src/install.js && node --check src/uninstall.js && node --check src/doctor.js && node --check src/paths.js && node --check src/file-utils.js && node --check src/templates.js",
+    "doctor": "node bin/universal-refactor-skill.js doctor",
+    "help": "node bin/universal-refactor-skill.js help"
+  },
+  "keywords": [
+    "refactor",
+    "refactoring",
+    "skill",
+    "agent",
+    "ai-agent",
+    "claude",
+    "claude-code",
+    "opencode",
+    "copilot",
+    "agents",
+    "code-quality",
+    "tech-debt",
+    "cli"
+  ],
+  "author": "Mustafa Elshahhat",
+  "license": "MIT",
+  "homepage": "https://github.com/mustafa-elshahhat/universal-refactor-skill#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mustafa-elshahhat/universal-refactor-skill.git"
+  },
+  "bugs": {
+    "url": "https://github.com/mustafa-elshahhat/universal-refactor-skill/issues"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}
